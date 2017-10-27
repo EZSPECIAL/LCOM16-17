@@ -1,0 +1,5 @@
+spritesheet,/tmp/resources/sprite_sheets/RedLynel32.png,
+tilesperline,4,
+ntiles,16,
+hitpoints,9,
+speed,2,
