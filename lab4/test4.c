@@ -4,6 +4,7 @@
 #include "i8254.h"
 #include "timer.h"
 #include "mouse.h"
+#include "keyboard.h"
 
 //Displays the packets received from the mouse
 //cnt - number of packets to print
@@ -142,6 +143,44 @@ int test_gesture(short length) {
 	//Cleanup function, unsubscribes, clears output buffer
 	mouse_reset(ENABLED);
 	printf("Gesture detected, exiting...\n\n");
+
+	return 0;
+}
+
+int test_remote(unsigned long period, unsigned short cnt) {
+
+	clearscreen();
+
+	//Subscribe mouse interrupts
+	int mouse_irq = mouse_subscribe_int();
+	if(mouse_irq < 0) {
+		return -1;
+	}
+
+	int kbd_irq = kbd_subscribe_int();
+	if(kbd_irq < 0) {
+		mouse_reset(DISABLED);
+		return -1;
+	}
+
+	//Enable remote mode
+	if(mouse_command(REMOTE_MODE) != 0) {
+		mouse_reset(DISABLED);
+		kbd_reset(ENABLED);
+		return -1;
+	}
+
+	//Read packets by polling and print them
+	if(mouse_remote(period, cnt) != 0) {
+		mouse_reset(DISABLED);
+		kbd_reset(ENABLED);
+		return -1;
+	}
+
+	//Cleanup function, unsubscribes, clears output buffer, restores stream mode
+	mouse_reset(DISABLED);
+	kbd_reset(ENABLED);
+	printf("Packet limit reached, exiting...\n\n");
 
 	return 0;
 }

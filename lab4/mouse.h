@@ -62,4 +62,7 @@ int mouse_config();
 //State machine for test_gesture
 void mouse_state(ev_type_t event);
 
+//Sets up remote mode and reads packets by polling
+int mouse_remote(unsigned long period, unsigned short cnt);
+
 #endif //MOUSE_H

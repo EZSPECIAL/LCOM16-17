@@ -1,21 +1,14 @@
 #include <minix/syslib.h>
 #include <minix/drivers.h>
+#include <minix/driver.h>
 #include "i8042.h"
 #include "mouse.h"
+#include "keyboard.h"
 
 int mouse_hook; //Mouse hook id
 static int counter = 0;
 
 static state_t state = INIT;
-
-//Sleep 20ms*cycles for i8042 interfacing
-//Uses tickdelay from MINIX
-void delay(int cycles) {
-	while (cycles > 0) {
-		tickdelay(micros_to_ticks(DELAY_US));
-		cycles--;
-	}
-}
 
 //Tries to return mouse control to MINIX
 void mouse_reset(int data_report) {
@@ -29,6 +22,15 @@ void mouse_reset(int data_report) {
 				timeout--;
 			} else break;
 		}
+	}
+
+	timeout = TIMEOUT;
+
+	while(timeout > 0) {
+		if(mouse_command(STREAM_MODE) != 0) {
+			mouse_discard();
+			timeout--;
+		} else break;
 	}
 
 	timeout = TIMEOUT;
@@ -604,6 +606,52 @@ printf("Standard message received\n\n");
 #endif
 			}
 	}
+
+	return 0;
+}
+
+int mouse_remote(unsigned long period, unsigned short cnt) {
+
+	//Read KBC command byte so we can preserve it
+	int response = kbd_command(KBC_READ_CMD, KBD_CMD_BUF);
+
+	if(response == -1) return -1;
+
+	//Tell KBC we're writing a new command byte, then write it
+	if(kbd_command(KBC_WRITE_CMD, KBD_CMD_BUF) != 0) return -1;
+	if(kbd_write(response & (~BIT(0)), KBD_IN_BUF) == KBD_ERROR) return -1;
+
+	unsigned short total_packets = 0;
+	unsigned char packet[3] = {0, 0, 0};
+
+	while(total_packets < cnt) {
+
+		//Request packet
+		if(mouse_command(READ_DATA) != 0) {
+			mouse_reset(DISABLED);
+			return -1;
+		}
+
+		//Read the packet
+		size_t i;
+		for(i = 0; i < 3; i++) {
+			packet[i] = mouse_read();
+		}
+
+		total_packets++;
+		mouse_print_packet(packet);
+
+		tickdelay(micros_to_ticks(MS_TO_US(period)));
+	}
+
+	//Read KBC command byte so we can preserve it
+	response = kbd_command(KBC_READ_CMD, KBD_CMD_BUF);
+
+	if(response == -1) return -1;
+
+	//Tell KBC we're writing a new command byte, then write it
+	if(kbd_command(KBC_WRITE_CMD, KBD_CMD_BUF) != 0) return -1;
+	if(kbd_write(response | BIT(0), KBD_IN_BUF) == KBD_ERROR) return -1;
 
 	return 0;
 }

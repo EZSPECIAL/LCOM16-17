@@ -17,7 +17,6 @@
  * 
  * @return Return 0 upon success and non-zero otherwise
  */
-
 int test_packet(unsigned short cnt);
 
 /** 
@@ -30,7 +29,6 @@ int test_packet(unsigned short cnt);
  * 
  * @return Return 0 upon success and non-zero otherwise
  */
-
 int test_async(unsigned short idle_time);
 
 /** 
@@ -57,7 +55,21 @@ int test_config(void);
  * @return Return 0 upon success and non-zero otherwise
  */
 
-
 int test_gesture(short length);
+
+/**
+ * @brief To test PS/2 remote mode operation
+ *
+ * Configures the PS/2 to operate in remote mode
+ * Periodically requests a packet from the mouse,
+ * and displays the packets received from the mouse
+ * Exits after receiving the number of packets specified in argument
+ *
+ * @param period Period in milliseconds
+ * @param cnt Number of packets to receive and display before exiting
+ *
+ * @return Return 0 upon success and non-zero otherwise
+ */
+int test_remote(unsigned long period, unsigned short cnt);
 
 #endif /* __TEST_4.H */

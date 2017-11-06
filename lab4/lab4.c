@@ -1,9 +1,10 @@
-#include "test4.h"
-#include "i8042.h"
 #include <limits.h>
 #include <string.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <minix/syslib.h>
+#include "test4.h"
+#include "i8042.h"
 
 static int proc_args(int argc, char **argv);
 static unsigned long parse_ulong(char *str, int base);
@@ -28,14 +29,15 @@ static void print_usage(char **argv) {
 			"       service run %s -args \"packet <cnt - >0>\"\n"
 			"       service run %s -args \"async <time - 1-10>\"\n"
 			"       service run %s -args \"config\"\n"
-			"       service run %s -args \"gesture <length - !=0>\"\n",
-			argv[0], argv[0], argv[0], argv[0]);
+			"       service run %s -args \"gesture <length - !=0>\"\n"
+			"       service run %s -args \"remote <period - ms> <cnt - >0>\"\n",
+			argv[0], argv[0], argv[0], argv[0], argv[0]);
 }
 
 
 //Process arguments passed from user by MINIX terminal
 static int proc_args(int argc, char **argv) {
-	unsigned long cnt, time, length;
+	unsigned long cnt, time, length, period;
 
 	//test_packet(cnt)
 	if (strncmp(argv[1], "packet", strlen("packet")) == 0) {
@@ -102,7 +104,30 @@ static int proc_args(int argc, char **argv) {
 		return test_gesture(length);
 	}
 
-	else {
+	//test_remote(period, cnt)
+	else if (strncmp(argv[1], "remote", strlen("remote")) == 0) {
+		if (argc != 4) {
+			printf("mouse: wrong number of arguments for test_remote()\n");
+			return 1;
+		}
+
+		//Parse period parameter
+		period = parse_long(argv[2], 10);
+		if (period == LONG_MAX) {
+			printf("mouse: period value out of range or not a number\n");
+			return 1;
+		}
+
+		//Parse cnt parameter
+		cnt = parse_ulong(argv[3], 10);
+		if (cnt == ULONG_MAX) {
+			printf("mouse: cnt value out of range or not a number\n");
+			return 1;
+		}
+
+		printf("mouse::test_remote(%ld, %ld)\n\n", period, cnt);
+		return test_remote(period, cnt);
+	} else {
 		printf("mouse: %s - not a valid function!\n", argv[1]);
 		return 1;
 	}

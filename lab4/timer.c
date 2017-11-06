@@ -1,5 +1,6 @@
 #include <minix/syslib.h>
 #include <minix/drivers.h>
+#include <minix/driver.h>
 #include "i8254.h"
 
 static int hook_id; //Timer 0 hook id

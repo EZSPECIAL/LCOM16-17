@@ -27,9 +27,9 @@ COMPILER_TYPE= gnu
 CC= gcc
 
 PROG= lab4
-SRCS= lab4.c test4.c timer.c mouse.c
+SRCS= lab4.c test4.c timer.c mouse.c keyboard.c
 
-CCFLAGS= -Wall
+CFLAGS= -Wall
 
 #Toggle debug mode
 .if "${DEBUG}" == "1"

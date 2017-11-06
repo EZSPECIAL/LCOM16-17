@@ -6,6 +6,7 @@
 //Useful macros
 #define BIT(n) 				(0x01<<(n))
 #define NELEMS(x)  			(sizeof(x) / sizeof((x)[0]))
+#define MS_TO_US(X)         (X * 1000)
 
 //Interrupt constants
 #define KBD_IRQ 			1 	//Keyboard interrupt line
@@ -46,11 +47,16 @@
 #define KBD_ENABLE 			0xF4 //Enable scanning (keyboard will send scan codes) :: Returns 0xFA (ACK) or 0xFE (Resend)
 #define KBD_DISABLE 		0xF5 //Disable scanning (may also restore default parameters) :: Returns 0xFA (ACK) or 0xFE (Resend)
 #define KBD_LED 			0xED //Toggle keyboard LEDs :: Returns 0xFA (ACK) or 0xFE (Resend)
+#define KBC_READ_CMD		0x20 //KBC Read command byte command
+#define KBC_WRITE_CMD		0x60 //KBC Write command byte command
 
 //PS/2 Mouse Commands (write to port 0x60)
 #define ENABLE_DATA			0xF4 //Enable data reporting in stream mode
 #define DISABLE_DATA		0xF5 //Disable data reporting in stream mode
 #define STATUS_REQUEST		0xE9 //Command to request config from mouse
+#define STREAM_MODE			0xEA //Enable stream mode
+#define REMOTE_MODE			0xF0 //Enable remote mode for polling
+#define READ_DATA			0xEB //Read data packet from mouse
 
 //PS/2 Mouse Packets
 #define SYNC_BIT			BIT(3) //1st packet always has this bit set to 1, using it to sync
@@ -76,7 +82,7 @@
 #define KBD_FAIL			0xFC
 
 //Scan code set 1 (make/break codes for scan code set 1)
-#define ENTER_BREAK 		0x81
+#define ESC_BREAK	 		0x81
 #define TWOB_CODE 			0xE0 //Prefix of 2 Byte scancodes
 
 #endif //I8042_H
