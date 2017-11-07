@@ -628,7 +628,6 @@ int mouse_remote(unsigned long period, unsigned short cnt) {
 
 		//Request packet
 		if(mouse_command(READ_DATA) != 0) {
-			mouse_reset(DISABLED);
 			return -1;
 		}
 
